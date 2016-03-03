@@ -10,10 +10,10 @@ version = 1.2 -- refactored numerical gradient test into unit tests. Added train
 
 local opt = {}
 opt.learningRate = 0.1
-opt.hiddenSize = 6
-opt.vocabSize = 34
-opt.seqLen = 9 -- length of the encoded sequence
-opt.niter = 150
+opt.hiddenSize = 32
+opt.vocabSize = 234
+opt.seqLen = 196 -- length of the encoded sequence
+opt.niter = 350
 
 --[[ Forward coupling: Copy encoder cell and output to decoder LSTM ]]--
 local function forwardConnect(encLSTM, decLSTM)
@@ -46,10 +46,14 @@ dec:add(nn.Sequencer(nn.LogSoftMax()))
 
 local criterion = nn.SequencerCriterion(nn.ClassNLLCriterion())
 
+local ord = string.byte
+local chr = string.char
+
 -- Some example data (batchsize = 2)
-local encInSeq = torch.Tensor({{1,2,3,5,4,1,2,4,10},{3,2,1,4,5,13,24,23,31}}) 
-local decInSeq = torch.Tensor({{1,1,1,1,1},{1,1,1,1,1}})
-local decOutSeq = torch.Tensor({{2,3,4,1,5},{1,2,4,3,5}})
+--local encInSeq = torch.Tensor({{1,2,3,5,4,1,2,4,10},{3,2,1,4,5,13,24,23,31}}) 
+local encInSeq = torch.Tensor({{ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('W'),ord('W'),ord('W'),ord('W'),ord('W'),ord('W'),ord('W'),ord('W'),ord('W'),ord('W'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('W'),ord('W'),ord('W'),ord('W'),ord('W'),ord('W'),ord('W'),ord('W'),ord('W'),ord('W'),ord('W'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('F'),ord('F'),ord('F'),ord('F'),ord('F'),ord('F'),ord('F'),ord('F'),ord('F'),ord('F'),ord('F'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('7'),ord('7'),ord('7'),ord('7'),ord('7'),ord('7'),ord('7'),ord('7'),ord('7'),ord('2'),ord('2'),ord('2'),ord('2'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2')},{ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('W'),ord('W'),ord('W'),ord('W'),ord('W'),ord('W'),ord('W'),ord('W'),ord('W'),ord('W'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('T'),ord('T'),ord('T'),ord('T'),ord('T'),ord('T'),ord('T'),ord('T'),ord('T'),ord('T'),ord('T'),ord('T'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('G'),ord('G'),ord('G'),ord('G'),ord('G'),ord('G'),ord('G'),ord('G'),ord('G'),ord('G'),ord('G'),ord('G'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('5'),ord('5'),ord('5'),ord('5'),ord('5'),ord('5'),ord('5'),ord('5'),ord('5'),ord('5'),ord('5'),ord('5'),ord('5'),ord('5'),ord('5'),ord('5'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('7'),ord('7'),ord('7'),ord('7'),ord('7'),ord('7'),ord('7'),ord('7'),ord('7'),ord('7'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('6'),ord('6'),ord('6'),ord('6'),ord('6'),ord('6'),ord('6'),ord('6'),ord('6'),ord('6'),ord('6'),ord('6'),ord('6'),ord('6'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('7'),ord('7'),ord('0'),ord('7'),ord('7'),ord('7'),ord('7'),ord('7'),ord('7'),ord('7'),ord('7'),ord('7'),ord('7'),ord('7')}})
+local decInSeq = torch.Tensor({{1,1,1,1,1,1,1,1,1,1},{1,1,1,1,1,1,1,1,1,1}})
+local decOutSeq = torch.Tensor({{ord('0'),ord('0'),ord('0'),ord('0'),ord('W'),ord('W'),ord('F'),ord('2'),ord('2'),ord('2')},{ord('0'),ord('0'),ord('0'),ord('W'),ord('T'),ord('G'),ord('5'),ord('7'),ord('6'), ord('7')}})
 decOutSeq = nn.SplitTable(1, 1):forward(decOutSeq)
 
 for iteration=1,opt.niter do
@@ -64,25 +68,25 @@ for iteration=1,opt.niter do
    
    print(string.format("Iteration %d ; NLL err = %f ", iteration, err))
    local batchSize = 2
-   if (iteration%1==0) then
+   if (iteration%10==0) then
       --print(inputs)
       local batch_i = 1
          for batch_i=1, batchSize do
          local outseq = ''
          for i=1,#decOut do
             val, index = torch.max(decOut[i][batch_i], 1)
-            outseq = outseq .. ', ' .. index[1]
+            outseq = outseq .. ',' .. chr(index[1])
          end
          local inseq = ''
          --print(encInSeq:size(2))
          for i=1, encInSeq:size(2) do
-            inseq = inseq .. ',' ..  encInSeq[batch_i][i]
+            inseq = inseq .. ',' ..  chr(encInSeq[batch_i][i])
          end
          local targetseq = ''
          for i=1,#decOutSeq do
-            targetseq = targetseq .. ',' .. decOutSeq[i][batch_i]
+            targetseq = targetseq .. ',' .. chr(decOutSeq[i][batch_i])
          end
-         print(batch_i .. ': ' .. inseq .. ' -> ' .. outseq .. '('.. targetseq ..')')
+         print(batch_i .. ': [IN]' .. inseq .. ' -> [OUT]' .. outseq .. '([TRUTH]'.. targetseq ..')')
       --print(targets)
       end
    end
@@ -98,3 +102,43 @@ for iteration=1,opt.niter do
    dec:updateParameters(opt.learningRate)
    enc:updateParameters(opt.learningRate)
 end
+
+local model = {enc, dec, encLSTM, decLSTM}
+torch.save("model.t7", model)
+model = torch.load("model.t7")
+
+local function eval(model, inSeq)
+        local encInSeq = inSeq
+        local enc = model[1]
+        local dec = model[2]
+        local encLSTM = model[3]
+        local decLSTM = model[4]
+        local decInSeq = torch.Tensor({{1,1,1,1,1,1,1,1,1,1},{1,1,1,1,1,1,1,1,1,1}})
+	-- Forward pass
+	local encOut = enc:forward(encInSeq)
+	forwardConnect(encLSTM, decLSTM) -- Copy encoder output into decoder input
+	local decOut = dec:forward(decInSeq)
+
+	local batchSize = 1
+	if (1==1) then
+	  --print(inputs)
+	  local batch_i = 1
+		 for batch_i=1, batchSize do
+		 local outseq = ''
+		 for i=1,#decOut do
+			val, index = torch.max(decOut[i][batch_i], 1)
+			outseq = outseq .. ',' .. chr(index[1])
+		 end
+		 local inseq = ''
+		 --print(encInSeq:size(2))
+		 for i=1, encInSeq:size(2) do
+			inseq = inseq .. ',' ..  chr(encInSeq[batch_i][i])
+		 end
+		 print(batch_i .. ': [IN]' .. inseq .. ' -> [OUT]' .. outseq)
+	  end
+	end
+end
+
+print('Evaluating...')
+
+eval(model, torch.Tensor{{ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('P'),ord('P'),ord('N'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('T'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3')},{ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('P'),ord('P'),ord('N'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('T'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3')}})
