@@ -8,8 +8,8 @@ version = 1.2 -- refactored numerical gradient test into unit tests. Added train
 
 local opt = {}
 opt.learningRate = 0.1
-opt.hiddenSize = 64
-opt.vocabSize = 234
+opt.hiddenSize = 256
+opt.vocabSize = 234 -- classes (ascii max)
 opt.seqLen = 195 -- length of the encoded sequence
 opt.niter = 35000
 opt.batchsize = 2
@@ -70,9 +70,14 @@ local function read_data_top_output(filename)
       end
       table.insert(outputs, output)
       table.insert(labels, label)
-	  print('Read: ' .. raw_label)
+     print('Read: ' .. raw_label)
    end
    return outputs, labels
+end
+
+local function save_model(name, enc, dec, encLSTM, decLSTM)
+   local model = {enc, dec, encLSTM, decLSTM}
+   torch.save(name, model)
 end
 
 print('Loading data...')
@@ -112,29 +117,32 @@ for iteration=1,opt.niter do
    print(string.format("Iteration %d ; NLL err = %f ", iteration, err))
    local batchSize = opt.batchsize
       
-   if (iteration%10==0) then
+   if (iteration%50==0) then
       --print(inputs)
       for batch_i=1, batchSize do
          local inseq = ''
          for i=1, batch:size(2) do
-            inseq = inseq .. ',' ..  chr(batch[batch_i][i])
+            inseq = inseq .. '' ..  chr(batch[batch_i][i])
          end
          local outseq = ''
          for i=1,#decOut do
             val, index = torch.max(decOut[i][batch_i], 1)
-            outseq = outseq .. ',' .. chr(index[1])
+            outseq = outseq .. '' .. chr(index[1])
          end
          local targetseq = ''
          for i=1,#target_sequence do
-            targetseq = targetseq .. ',' .. chr(target_sequence[i][batch_i])
+            targetseq = targetseq .. '' .. chr(target_sequence[i][batch_i])
          end
-         print(batch_i .. ': [IN]' .. inseq .. ' -> [OUT]' .. outseq .. '([TRUTH]'.. targetseq ..')')
+         print(batch_i .. ': [IN]' .. inseq .. ' -> [OUT]' .. outseq .. ' [TRUTH]'.. targetseq ..'')
       --print(targets)
       end
    end
    
-   if (iteration%500 == 0) then
-      save_model("model_iter" .. iteration, enc, dec, encLSTM, decLSTM)
+   if (iteration%1000 == 0) then
+      save_model("model_iter" .. iteration .. '.t7', enc, dec, encLSTM, decLSTM)
+     print('Saving model model_iter' .. iteration .. '.t7')
+     if opt.learningRate > 0.001 then opt.learningRate = opt.learningRate / 10 end
+     print ('Learning rate: ' .. opt.learningRate)
    end
 
    -- Backward pass
@@ -148,21 +156,19 @@ for iteration=1,opt.niter do
    enc:updateParameters(opt.learningRate)
 end
 
-
-local function save_model(name, enc, dec, encLSTM, decLSTM)
-	local model = {enc, dec, encLSTM, decLSTM}
-	torch.save(name, model)
-end
-
 save_model("endmodel.t7", enc, dec, encLSTM, decLSTM)
 
 local function eval(model, inSeq)
-        local encInSeq = inSeq
-        local enc = model[1]
-        local dec = model[2]
-        local encLSTM = model[3]
-        local decLSTM = model[4]
-      --local decInSeq = torch.Tensor({{1,1,1,1,1,1,1,1,1,1},{1,1,1,1,1,1,1,1,1,1}})
+   local encInSeq = inSeq
+   local enc = model[1]
+   local dec = model[2]
+   local encLSTM = model[3]
+   local decLSTM = model[4]
+   --local decInSeq = torch.Tensor({{1,1,1,1,1,1,1,1,1,1},{1,1,1,1,1,1,1,1,1,1}})
+   
+  
+   enc:zeroGradParameters()
+   dec:zeroGradParameters()
    -- Forward pass
    local encOut = enc:forward(encInSeq)
    forwardConnect(encLSTM, decLSTM) -- Copy encoder output into decoder input
