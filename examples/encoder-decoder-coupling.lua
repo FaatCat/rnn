@@ -13,7 +13,7 @@ opt.learningRate = 0.1
 opt.hiddenSize = 32
 opt.vocabSize = 234
 opt.seqLen = 196 -- length of the encoded sequence
-opt.niter = 350
+opt.niter = 500
 
 --[[ Forward coupling: Copy encoder cell and output to decoder LSTM ]]--
 local function forwardConnect(encLSTM, decLSTM)
