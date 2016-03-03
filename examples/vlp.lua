@@ -137,7 +137,18 @@ for iteration=1,opt.niter do
       --print(targets)
       end
    end
-   
+   if (iteration%100==0) then 
+      print('VAL SET: ')
+      for batch_i = 1, batchSize do
+        local val_index = training_data_split_index + math.random(#data - training_data_split_index)
+        local input, output = eval({enc,dec,encLSTM,decLSTM}, data[val_index])
+        local inseq = ''
+        for i=1, batch:size(2) do
+           inseq = inseq .. '' ..  chr(batch[batch_i][i])
+        end
+        print('[IN]'..input .. '\n[OUT]' .. output)
+      end
+   end   
    if (iteration%1000 == 0) then
       save_model("model_iter" .. iteration .. '.t7', enc, dec, encLSTM, decLSTM)
      print('Saving model model_iter' .. iteration .. '.t7')
@@ -189,7 +200,10 @@ local function eval(model, inSeq)
        for i=1, encInSeq:size(2) do
          inseq = inseq .. ',' ..  chr(encInSeq[batch_i][i])
        end
-       print(batch_i .. ': [IN]' .. inseq .. ' -> [OUT]' .. outseq)
+       --print(batch_i .. ': [IN]' .. inseq .. ' -> [OUT]' .. outseq)
+       local prettyOut = outseq
+       local prettyIn = inseq
+       return prettyIn, prettyOut
      end
    end
 end
@@ -203,3 +217,4 @@ eval(model, data[training_data_split_index + math.random(#data - training_data_s
 eval(model, data[training_data_split_index + math.random(#data - training_data_split_index)])
 eval(model, data[training_data_split_index + math.random(#data - training_data_split_index)])
 eval(model, data[training_data_split_index + math.random(#data - training_data_split_index)])
+
