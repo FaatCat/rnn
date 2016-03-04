@@ -135,8 +135,10 @@ local decInSeq = torch.Tensor(decoderInput)
 for iteration=1,opt.niter do
    local batch_data = {}
    local label = {}
+   local validating = (iteration%100==0)
    for i=1, opt.batchsize do 
       local random_index = math.random(training_data_split_index)
+	  if (validating) then random_index = training_data_split_index + math.random(#data - training_data_split_index) end
       table.insert(batch_data, data[random_index])
       table.insert(label, labels[random_index])
    end
@@ -173,11 +175,13 @@ for iteration=1,opt.niter do
          for i=1,#target_sequence do
             targetseq = targetseq .. '' .. chr(target_sequence[i][batch_i])
          end
+		 if (validating) then print('VALIDATION SET') end
          print(batch_i .. ': [IN]' .. inseq .. ' -> [OUT]' .. outseq .. ' [TRUTH]'.. targetseq ..'')
       --print(targets)
       end
    end
-   if (iteration%100==0) then 
+   --[[
+   if (validating) then 
       print('VAL SET: ')
       for batch_i = 1, batchSize do
         local val_index = training_data_split_index + math.random(#data - training_data_split_index)
@@ -188,7 +192,7 @@ for iteration=1,opt.niter do
         end
         print('[IN]'..input .. '\n[OUT]' .. output)
       end
-   end   
+   end   ]]--
    if (iteration%1000 == 0) then
       save_model("model_iter" .. iteration .. '.t7', enc, dec, encLSTM, decLSTM)
      print('Saving model model_iter' .. iteration .. '.t7')
@@ -196,15 +200,17 @@ for iteration=1,opt.niter do
      print ('Learning rate: ' .. opt.learningRate)
    end
 
-   -- Backward pass
-   local gradOutput = criterion:backward(decOut, target_sequence)
-   dec:backward(decInSeq, gradOutput)
-   backwardConnect(encLSTM, decLSTM)
-   local zeroTensor = torch.Tensor(2):zero()
-   enc:backward(encInSeq, zeroTensor)
+   if not validating then
+      -- Backward pass
+      local gradOutput = criterion:backward(decOut, target_sequence)
+      dec:backward(decInSeq, gradOutput)
+      backwardConnect(encLSTM, decLSTM)
+      local zeroTensor = torch.Tensor(2):zero()
+      enc:backward(encInSeq, zeroTensor)
 
-   dec:updateParameters(opt.learningRate)
-   enc:updateParameters(opt.learningRate)
+      dec:updateParameters(opt.learningRate)
+      enc:updateParameters(opt.learningRate)
+   end
 end
 
 save_model("endmodel.t7", enc, dec, encLSTM, decLSTM)
