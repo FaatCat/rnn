@@ -180,19 +180,6 @@ for iteration=1,opt.niter do
       --print(targets)
       end
    end
-   --[[
-   if (validating) then 
-      print('VAL SET: ')
-      for batch_i = 1, batchSize do
-        local val_index = training_data_split_index + math.random(#data - training_data_split_index)
-        local input, output = forward({enc,dec,encLSTM,decLSTM}, data[val_index])
-        local inseq = ''
-        for i=1, batch:size(2) do
-           inseq = inseq .. '' ..  chr(batch[batch_i][i])
-        end
-        print('[IN]'..input .. '\n[OUT]' .. output)
-      end
-   end   ]]--
    if (iteration%1000 == 0) then
       save_model("model_iter" .. iteration .. '.t7', enc, dec, encLSTM, decLSTM)
      print('Saving model model_iter' .. iteration .. '.t7')
@@ -210,6 +197,8 @@ for iteration=1,opt.niter do
 
       dec:updateParameters(opt.learningRate)
       enc:updateParameters(opt.learningRate)
+   else
+      iteration = iteration - 1
    end
 end
 
@@ -220,9 +209,5 @@ model = torch.load("endmodel.t7")
 print('Evaluating...')
 
 forward(model, torch.Tensor{{ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('P'),ord('P'),ord('N'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('T'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3')},{ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('B'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('P'),ord('P'),ord('N'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('M'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('C'),ord('T'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('2'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('0'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3'),ord('3')}})
-forward(model, data[training_data_split_index + math.random(#data - training_data_split_index)])
-forward(model, data[training_data_split_index + math.random(#data - training_data_split_index)])
-forward(model, data[training_data_split_index + math.random(#data - training_data_split_index)])
-forward(model, data[training_data_split_index + math.random(#data - training_data_split_index)])
 forward(model, data[training_data_split_index + math.random(#data - training_data_split_index)])
 
