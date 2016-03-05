@@ -7,7 +7,7 @@ require 'rnn'
 version = 1.2 -- refactored numerical gradient test into unit tests. Added training loop
 
 local opt = {}
-opt.data_dir = "/home/ubuntu/fyp/python/all_output.txt" --"/home/ubuntu/fyp/python/top_class_output.txt"
+opt.data_dir = "/home/ubuntu/fyp/python/top_output_all.txt" --"/home/ubuntu/fyp/python/top_class_output.txt"
 opt.learningRate = 0.1
 opt.hiddenSize = 256
 opt.vocabSize = 234 -- classes (ascii max)
